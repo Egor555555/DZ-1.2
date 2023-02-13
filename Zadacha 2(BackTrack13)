@@ -2,60 +2,66 @@
 //отсутствие стены - символом пробела. Даны координаты мышки в лабиринте (номер строки (X) и номер столбца (Y)) и координаты сыра (номер строки (XС) и 
 //номер столбца (YС)). Нужно вывести самый длинный путь мышки к сыру. Для этого распечатать сам лабиринт и обозначить путь символами +. 
 //Гарантируется, что такой путь только один. Длина пути определяется числом клеток на которые должна ступить нога мышки.
+#include <windows.h>
+#include <fstream>
+#include <string>
 #include "pt4.h"
-#include "fstream"
-#include "string"
 using namespace std;
-int N, k=0, kmax=0;
-const int NMAX = 15;
-char Lab[NMAX][NMAX];
-void go(int x, int y, int XC, int YC, ofstream& f0) {
-	if (Lab[x][y] == ' ')
+
+int n, kmax = 0, k = 0;
+char lab[50][50], rez[50][50];
+
+void go(int x1, int y1, int xc, int yc)
+{
+	if (lab[x1][y1] == ' ')
 	{
 		k++;
-		Lab[x][y] = '+';
-		if (x == XC && y == YC)
+		lab[x1][y1] = '+';
+		if ((x1 == xc) && (y1 == yc) && (k > kmax))
 		{
-			if (k > kmax) {
-				kmax = k;
-				for (int i = 0;i < N - 1;i++)
-				{
-					for (int j = 0;j < N - 1;j++)
-						f0 << Lab[i][j];
-					f0 << endl;
-				}
-			}
+			kmax = k;
+			for (int i = 1; i <= n; i++)
+				for (int j = 1; j <= n; j++)
+					rez[i][j] = lab[i][j];
 		}
-		else {
-			if (x != N - 1)
-				go(x + 1, y, XC, YC, f0);
-			if (x != 0)
-				go(x - 1, y, XC, YC, f0);
-			if (y != N - 1)
-				go(x, y + 1, XC, YC, f0);
-			if (y != 0)
-				go(x, y - 1, XC, YC, f0);
-
+		else
+		{
+			go(x1 + 1, y1, xc, yc);
+			go(x1 - 1, y1, xc, yc);
+			go(x1, y1 + 1, xc, yc);
+			go(x1, y1 - 1, xc, yc);
 		}
-		Lab[x][y] = ' ';
+		lab[x1][y1] = ' ';
 		k--;
 	}
 }
+
 void Solve()
 {
 	Task("BackTrack13");
-	string s, t;
-	pt >> s;
-	int X, Y, XC, YC, i, j;
-	pt >> N >> X >> Y >> XC >> YC;
-	pt >> t;
-	ifstream f(s);
-	ofstream f0(t);
-	X--, Y--, XC--, YC--, N++;
-	for (i = 0;i < N;i++) {
-		f.getline(Lab[i], N);
+	string s1, s2;
+	int x, y, xc, yc;
+	pt >> s1;
+	pt >> n >> x >> y >> xc >> yc;
+
+	ifstream f1(s1);
+	for (int i = 1; i <= n; i++)
+	{
+		getline(f1, s1);
+		for (int j = 1; j <= n; j++)
+			lab[i][j] = s1[j - 1];
 	}
-	go(X, Y, XC, YC, f0);
-	f.close();
-	f0.close();
+	f1.close();
+
+	go(x, y, xc, yc);
+
+	pt >> s2;
+	ofstream f2(s2);
+	for (int i = 1; i <= n; i++)
+	{
+		for (int j = 1; j <= n; j++)
+			f2 << rez[i][j];
+		f2 << endl;
+	}
+	f2.close();
 }
