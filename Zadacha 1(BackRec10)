@@ -1,0 +1,81 @@
+//Археолог нашел N артефактов. Известны веса (сi) и налоговое бремя (di) находок. Нужно выбрать такое подмножество находок, чтобы их суммарый вес превысил Z кг, 
+//а их общее налоговое бремя оказалось минимальным. Известно, что решение единственно. Укажите порядковые номера вещей, которые нужно взять. 
+//Исходный данные находятся в файле с именем FileName, в первой строке указаны N и Z, а во второй строке значения весов (в кг), в третьей - 
+//величнина налога по каждой находке. Вывести так же суммарный вес и общую ценность результата.
+#include <windows.h>
+#include "pt4.h"
+#include <fstream>
+using namespace std;
+
+int mind = 0, resC;
+int D = 0, C = 0;
+
+void Res(bool* flag, bool* minflag, int* d, int* c, int n, int z)
+{
+	D = 0; C = 0;
+	for (int i = 0; i < n; i++)
+	{
+		if (flag[i])
+		{
+
+			D += d[i];
+			C += c[i];
+		}
+	}
+
+	if ((C > z) && (D <= mind))
+	{
+		mind = D;
+		resC = C;
+		for (int i = 0; i < n; i++)
+			minflag[i] = flag[i];
+	}
+
+}
+void Perebor(int k, bool* flag, bool* minflag, int* d, int* c, int n, int z)
+{
+	if (k < n)
+	{
+		flag[k] = true;
+		Perebor(k + 1, flag, minflag, d, c, n, z);
+		flag[k] = false;
+		Perebor(k + 1, flag, minflag, d, c, n, z);
+	}
+	else
+		Res(flag, minflag, d, c, n, z);
+}
+void Solve()
+{
+	Task("BackRec10");
+	string s;
+	fstream f;
+	int n, z;
+	pt >> s;
+	f.open(s.c_str(), ios::in);
+	f >> n >> z;
+	bool* flag = new bool[n];
+	bool* minflag = new bool[n];
+	int* c = new int[n];
+	int* d = new int[n];
+
+
+	for (int i = 0; i < n; i++)
+	{
+		f >> c[i];
+		flag[i] = 0;
+		minflag[i] = 0;
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		f >> d[i];
+		mind = mind + d[i];
+	}
+
+	Perebor(0, flag, minflag, d, c, n, z);
+	for (int i = 0; i < n; i++)
+		if (minflag[i] != 0)
+			pt << i + 1;
+	pt << resC << mind;
+
+}
